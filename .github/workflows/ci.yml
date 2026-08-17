@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Zero runtime dependencies: plain ESM + node:test, nothing to install.
+
+      - name: Unit tests (pin-core)
+        run: node --test
+        timeout-minutes: 5
+
+      # The checked-in lib/client.js must be in sync with src/ + pin-core.
+      - name: Bundle in sync
+        run: node scripts/build-client.mjs --check
+        timeout-minutes: 5

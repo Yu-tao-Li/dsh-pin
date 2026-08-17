@@ -1,0 +1,13 @@
+# dsh-pin — DSH bundle patch layer
+#
+# Client-only plugin: the server half (lib/index.js) is a no-op. The browser
+# half (lib/client.js, declared via dsh.client in package.json) injects pin
+# controls into the sidebar session list and reorders through the host's
+# durable order APIs (workspace.insertBefore / workspace.insertSessionBefore).
+#
+# The entry exists so the package is a loader entry the client-module scanner
+# (dsh-client-modules) can discover; no host services are needed.
+
+- insert:
+    - id: dsh-pin
+      name: dsh-pin

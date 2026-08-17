@@ -1,0 +1,66 @@
+{
+  "name": "dsh-pin",
+  "version": "0.1.0",
+  "description": "Pin DeepSeek Harness sidebar conversations: pin a session to the top of its workspace, or to the very top of the whole list. 会话置顶:工作区内置顶 / 全列表最上面置顶,一键取消还原原位置。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./pin-core": "./lib/pin-core.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "scripts",
+    "e2e",
+    "test",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "PUBLISH.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build-client.mjs",
+    "check": "node scripts/build-client.mjs --check",
+    "test": "node --test",
+    "e2e": "node e2e/browser-e2e.mjs"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "pin",
+    "pinning",
+    "sidebar",
+    "session",
+    "workspace",
+    "ui"
+  ],
+  "author": "Yu-tao-Li",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yu-tao-Li/dsh-pin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yu-tao-Li/dsh-pin/issues"
+  },
+  "homepage": "https://github.com/Yu-tao-Li/dsh-pin#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ],
+      "platform": "web"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# 收录条目 —— 提交到 awesome-dsh-plugin 仓库时,放到:
+#   data/plugins/Yu-tao-Li__dsh-pin.yml
+# 注意:英文描述含 ": "(冒号+空格),按规则必须加引号。
+url: https://github.com/Yu-tao-Li/dsh-pin
+name: Yu-tao-Li/dsh-pin
+category: ui
+description:
+  en: 'Pin DeepSeek Harness sidebar conversations: pin a session to the top of its workspace, or to the very top of the whole list (workspace group included), with one-click un-pin that restores the exact original position. Client-only, zero dependencies, built on the host''s official order APIs.'
+  zh: 为 DeepSeek Harness 侧边栏会话提供两级置顶:📌 置顶到本工作区、⌃⌃ 置顶到列表最上面(工作区组一并提前),再点一次取消置顶并精确还原原位置。纯客户端插件、零依赖,基于宿主官方顺序 API。
