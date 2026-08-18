@@ -5,5 +5,5 @@ url: https://github.com/Yu-tao-Li/dsh-pin
 name: Yu-tao-Li/dsh-pin
 category: ui
 description:
-  en: 'Pin DeepSeek Harness sidebar conversations: pin a session to the top of its workspace, or to the very top of the whole list (workspace group included), with one-click un-pin that restores the exact original position. Client-only, zero dependencies, built on the host''s official order APIs.'
-  zh: 为 DeepSeek Harness 侧边栏会话提供两级置顶:📌 置顶到本工作区、⌃⌃ 置顶到列表最上面(工作区组一并提前),再点一次取消置顶并精确还原原位置。纯客户端插件、零依赖,基于宿主官方顺序 API。
+  en: 'Pin DeepSeek Harness sidebar conversations two ways: pin to the top of the workspace, or lift the session into a global tray above ALL workspaces (with multi-pin stacking and one-click un-pin that restores the exact original position). Client-only, zero dependencies, built on the host''s official order APIs.'
+  zh: 为 DeepSeek Harness 侧边栏会话提供两级置顶:📌 置顶到本工作区(持久顺序、多置顶堆叠、精确还原),⌃⌃ 置顶到所有工作区最上面(全局置顶区,悬浮在所有工作区组之上)。纯客户端插件、零依赖,基于宿主官方顺序 API。

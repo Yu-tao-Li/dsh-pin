@@ -2,8 +2,8 @@
  * Screenshot capture for the dsh-pin README (CDP-driven, no physical mouse).
  *
  * 1. screenshot-2.png: hover a session row -> the two pin buttons appear.
- * 2. screenshot-1.png: after a top-pin -> workspace moved to the very top,
- *    session at the front with the pin indicator, button pressed.
+ * 2. screenshot-1.png: after a top-pin -> the session sits in a pinned tray
+ *    ABOVE all workspace groups (its in-group row is hidden).
  * Restores the pin afterwards (round trip).
  *
  * Run: node e2e/screenshot.mjs [baseUrl] [outDir]
@@ -67,24 +67,23 @@ try {
 	await sleep(500);
 	await shot(`${OUT}\\screenshot-2.png`);
 
-	// Top-pin the hovered row: its workspace moves to the very top of the list.
+	// Top-pin the hovered row: it is lifted into the tray above all workspaces.
 	await ev(`(() => { const all = document.querySelectorAll('[data-dsh-pin="sess-top"]'); all[all.length - 1].click(); })()`);
 	await sleep(1500);
-	// Hover the pinned row (now at the front of its group, group now first).
+	// Hover the tray row (above every workspace group) — shows its un-pin button.
 	const pinned = await ev(`(() => {
-		const b = document.querySelector('[data-dsh-pin="sess-top"][data-pressed="true"]');
-		if (!b) return null;
-		const row = b.closest("div[role='treeitem']");
+		const row = document.querySelector('[data-dsh-pin="tray-row"]');
+		if (!row) return null;
 		const r = row.getBoundingClientRect();
 		return { x: Math.round(r.left + r.width * 0.5), y: Math.round(r.top + r.height / 2) };
 	})()`);
-	if (!pinned) throw new Error("pinned row not found after top-pin");
+	if (!pinned) throw new Error("tray row not found after top-pin");
 	await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: pinned.x, y: pinned.y });
 	await sleep(500);
 	await shot(`${OUT}\\screenshot-1.png`);
 
-	// Round-trip back: un-pin (toggles off), verify the record cleared.
-	await ev(`document.querySelector('[data-dsh-pin="sess-top"][data-pressed="true"]').click()`);
+	// Round-trip back: un-pin from the tray, verify the record cleared.
+	await ev(`document.querySelector('[data-dsh-pin="tray-unpin"]')?.click()`);
 	await sleep(1500);
 	const rec = await ev(`localStorage.getItem("dsh-pin.records.v3")`);
 	console.log("record after un-pin:", rec ?? "(empty)");
