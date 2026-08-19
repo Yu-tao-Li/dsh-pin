@@ -1,6 +1,6 @@
 {
   "name": "dsh-pin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Pin DeepSeek Harness sidebar conversations: pin a session to the top of its workspace, or lift it into a global tray above all workspaces. 会话置顶:工作区内置顶 / 置顶到所有工作区最上面(全局置顶区),一键取消还原原位置。",
   "type": "module",
   "main": "lib/index.js",

@@ -16,7 +16,7 @@
 
 ## Features
 
-- **Two-level pinning** — 📌 pins a session to the top of **its workspace** (durable order, visible to every client); ⌃⌃ pins a session **above all workspaces**: the session moves into a pinned tray at the very top of the sidebar, floating above every workspace group (its in-group row is hidden); clicking a tray row opens that session. Workspace group headers carry their own ⌃⌃ button to pin an entire workspace.
+- **Two-level pinning (one icon, one operation)** — 📌 pins a session to the top of **its workspace** (durable order, visible to every client); ⌃⌃ pins a session **above all workspaces**: the session moves into a pinned tray at the very top of the sidebar, floating above every workspace group (its in-group row is hidden); clicking a tray row opens that session. Both buttons appear only on session rows, each mapping to exactly one operation.
 - **Multiple pins** — any number of sessions can be pinned at once: workspace-level pins stack at the top of their group, global pins stack in the tray in most-recently-pinned order, each keeping its 📌 marker and button highlight. Clicking the other button (📌↔⌃⌃) re-pins at the other level.
 - **Exact restore (multi-pin safe)** — un-pinning a workspace-level pin moves **only that session** back to the slot it had **in the current list** before it was pinned (recorded `before`/`after` anchors, preceding neighbour preferred): no stale whole-list snapshot is replayed, so the other pinned sessions are never disturbed. Both the host's durable order and the browser's display order are restored; if an anchor is gone it falls back step by step (append to the end) — the position is never silently lost. If it was the last pin, the app's sort mode is switched back to what it was before the pin (e.g. "recently updated"). A global pin is display-level (it never touches any order), so un-pinning it is a side-effect-free removal. Legacy global pins from the pre-tray build (which moved the workspace) are rolled back automatically on un-pin.
 - **Built on the host's official order APIs** — workspace-level pinning uses `workspace.insertSessionBefore` / `workspace.insertBefore`, the same channel the app's own drag & drop uses; the order is durable in the DSH workspace registry and visible to every client. **No DSH core changes, zero runtime dependencies.**
@@ -59,7 +59,7 @@ dsh-pin client bundle (this repo's lib/client.js)
 ## Safety & limitations
 
 - Only two kinds of state are written: host workspace/session **order** (official APIs, always re-draggable) and per-browser local records; session content, credentials, and network endpoints are untouched.
-- **Global pins are per-browser** (the DSH host has no "globally pinned session" concept); workspace-level pins and whole-workspace pins are durable and global.
+- **Global pins are per-browser** (the DSH host has no "globally pinned session" concept); workspace-level pins are durable and global.
 - Web GUI only (the TUI/headless have no sidebar); the "Ungrouped" bucket supports global pinning but not within-workspace pinning; flat mode is unsupported (app design).
 - Restoring a workspace-level pin relies on the original neighbors still existing; if a neighbor was archived/deleted, fallback placement applies (append, or before the previous neighbor) — never a silent loss.
 - Relies on app internals (React fiber row identity, view-store key `dsh.workspace.view.v5`): after a major DSH upgrade the buttons may stop working until this repo adapts — the app itself is unaffected.

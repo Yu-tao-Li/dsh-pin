@@ -16,8 +16,7 @@ import {
 	restoreAnchor,
 	restoreInList,
 	localRestorePos,
-	planSessionPin,
-	planWorkspacePin
+	planSessionPin
 } from "../lib/pin-core.mjs";
 
 const WS_A = { workspaceId: "wsA", sessionIds: ["s1", "s2", "s3"] };
@@ -256,29 +255,6 @@ test("planSessionPin top: recorded session unpins regardless of position", () =>
 	assert.equal(plan.scope, "top");
 	assert.equal(plan.restore, rec);
 	assert.equal(plan.newLocalOrder, undefined, "unpin restores nothing — orders were never touched");
-});
-
-test("planWorkspacePin: pin / in-place pin / unpin / unsupported", () => {
-	const pin = planWorkspacePin(state(), "wsB");
-	assert.equal(pin.kind, "pin");
-	assert.equal(pin.before, "wsA");
-	assert.deepEqual(pin.record, { before: "wsA", after: null });
-	const inPlace = planWorkspacePin(state(), "wsA");
-	assert.equal(inPlace.kind, "pin");
-	assert.equal(inPlace.before, null, "already first: record without a move");
-	assert.deepEqual(inPlace.record, { before: null, after: "wsB" });
-	const st = state({ records: { sessions: {}, workspaces: { wsA: { before: "wsB", after: null } } } });
-	assert.deepEqual(planWorkspacePin(st, "wsA"), { kind: "unpin", restore: { before: "wsB", after: null } });
-	const st2 = state({
-		workspaces: [
-			{ workspaceId: "wsC", sessionIds: ["s9"] },
-			{ workspaceId: "wsB", sessionIds: ["s4"] },
-			{ workspaceId: "wsA", sessionIds: ["s1"] }
-		],
-		records: { sessions: {}, workspaces: { wsB: { before: "wsA", after: null } } }
-	});
-	assert.equal(planWorkspacePin(st2, "wsB").kind, "unpin", "recorded workspace unpins even when not first");
-	assert.equal(planWorkspacePin(state(), "ghost").kind, "unsupported");
 });
 
 test("round-trip local: pin then unpin restores the exact host + local order", () => {

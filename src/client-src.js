@@ -71,7 +71,6 @@ window.__ModuleLoader__.load({
 			return null;
 		}
 		const isSessionProps = (p) => p !== null && typeof p === "object" && p.node && typeof p.node === "object" && typeof p.node.id === "string" && typeof p.node.updatedAt === "number";
-		const isWorkspaceProps = (p) => p !== null && typeof p === "object" && p.group && typeof p.group === "object" && typeof p.group.workspaceId === "string";
 		/** The workspace browser's view-store actions (setSessionOrder/setOrderBy) via its slot props. */
 		const isViewActionsProps = (p) => p !== null && typeof p === "object" && p.actions && typeof p.actions.setSessionOrder === "function" && typeof p.actions.setOrderBy === "function";
 		//#endregion
@@ -90,7 +89,6 @@ window.__ModuleLoader__.load({
 			const T = {
 				local: ZH ? "置顶到本工作区(再点一次取消置顶)" : "Pin to top of this workspace (click again to unpin)",
 				top: ZH ? "置顶到所有工作区最上面(再点一次取消置顶)" : "Pin above all workspaces (click again to unpin)",
-				ws: ZH ? "将工作区置顶到最上面(再点一次取消置顶)" : "Pin this workspace to the top (click again to unpin)",
 				pinned: ZH ? "已置顶" : "Pinned",
 				unpin: ZH ? "取消置顶" : "Unpin",
 				tray: ZH ? "已置顶" : "Pinned"
@@ -150,8 +148,6 @@ window.__ModuleLoader__.load({
 
 			function setSessionRecord(sessionId, rec) { records.sessions[sessionId] = rec; saveRecords(window.localStorage, records); }
 			function clearSessionRecord(sessionId) { delete records.sessions[sessionId]; saveRecords(window.localStorage, records); }
-			function setWorkspaceRecord(workspaceId, rec) { records.workspaces[workspaceId] = rec; saveRecords(window.localStorage, records); }
-			function clearWorkspaceRecord(workspaceId) { delete records.workspaces[workspaceId]; saveRecords(window.localStorage, records); }
 
 			/** Drop records for sessions/workspaces that no longer exist (deleted/archived away). */
 			function pruneRecords(st) {
@@ -167,7 +163,6 @@ window.__ModuleLoader__.load({
 
 			// ---- DOM injection ----
 			const injected = new WeakMap(); // session row -> { btnLocal, btnTop, indicator }
-			const wsInjected = new WeakMap(); // workspace row -> { btnWs }
 
 			function makeButton(kind, label, icon, onActivate) {
 				const btn = document.createElement("button");
@@ -347,36 +342,6 @@ window.__ModuleLoader__.load({
 				}
 			}
 
-			// ---- workspace pin (durable registry display order, mode-independent) ----
-			async function onWorkspacePin(row) {
-				const btn = buttonOf(row, "ws-top");
-				const st = currentState();
-				const props = rowProps(row, isWorkspaceProps);
-				if (!st || !props || !btn) return;
-				const workspaceId = props.group.workspaceId;
-				const plan = planWorkspacePin(st, workspaceId);
-				try {
-					if (plan.kind === "unsupported") { flash(btn, "noop"); return; }
-					if (plan.kind === "pin") {
-						if (plan.before !== null && plan.before !== undefined) await api.insertBefore(workspaceId, plan.before);
-						setWorkspaceRecord(workspaceId, plan.record);
-						flash(btn, "ok");
-						return;
-					}
-					if (plan.kind === "unpin") {
-						const anchor = restoreAnchor(st.workspaces.map((w) => w.workspaceId), plan.restore);
-						await api.insertBefore(workspaceId, anchor);
-						clearWorkspaceRecord(workspaceId);
-						flash(btn, "ok");
-						return;
-					}
-					flash(btn, "noop");
-				} catch (error) {
-					console.error("[dsh-pin] workspace pin failed:", error);
-					flash(btn, "err");
-				}
-			}
-
 			function decorateSessionRow(row, st) {
 				const props = rowProps(row, isSessionProps);
 				if (!props) return;
@@ -413,23 +378,6 @@ window.__ModuleLoader__.load({
 				updateIndicator(row, inj, localPinned);
 			}
 
-			function decorateWorkspaceRow(row, st) {
-				const props = rowProps(row, isWorkspaceProps);
-				if (!props) return;
-				const workspaceId = props.group.workspaceId;
-				const anchor = row.querySelector("button[aria-label]");
-				if (!anchor) return;
-				const container = anchor.parentElement;
-				let inj = wsInjected.get(row);
-				if (!inj || !inj.btnWs?.isConnected) {
-					inj = { btnWs: makeButton("ws-top", T.ws, makeSvg(ICON_TOP, 14), () => onWorkspacePin(row)) };
-					container.insertBefore(inj.btnWs, anchor);
-					wsInjected.set(row, inj);
-				}
-				// Pinned iff the record exists, wherever the workspace currently sits.
-				inj.btnWs.dataset.pressed = (st.records.workspaces ?? {})[workspaceId] !== undefined ? "true" : "false";
-			}
-
 			// ---- sync driver ----
 			let syncTimer = null;
 			function scheduleSync() {
@@ -448,11 +396,10 @@ window.__ModuleLoader__.load({
 				let sawWorkspaceHeader = false;
 				for (const row of rows) {
 					if (row.hasAttribute("aria-expanded")) {
-						sawWorkspaceHeader = true;
-						decorateWorkspaceRow(row, st);
-					} else {
-						decorateSessionRow(row, st);
+						sawWorkspaceHeader = true; // workspace headers: no injected buttons
+						continue;
 					}
+					decorateSessionRow(row, st);
 				}
 				if (!sawWorkspaceHeader) {
 					for (const row of rows) removeInjected(row);
